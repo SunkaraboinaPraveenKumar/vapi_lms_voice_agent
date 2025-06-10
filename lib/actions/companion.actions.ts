@@ -40,6 +40,21 @@ export const getAllCompanions = async ({ limit = 10, page = 1, subject, topic }:
     if (error) {
         throw new Error(error.message);
     }
+
+    const { userId } = await auth();
+    if (userId) {
+        const userBookmarks = await supabase.from('bookmarks').select('companion_id').eq('user_id', userId);
+        if (userBookmarks.error) {
+            console.error("Error fetching user bookmarks:", userBookmarks.error);
+        }
+        const bookmarkedCompanionIds = new Set(userBookmarks.data?.map(b => b.companion_id));
+
+        return companions.map(companion => ({
+            ...companion,
+            bookmarked: bookmarkedCompanionIds.has(companion.id)
+        }));
+    }
+
     return companions;
 }
 
@@ -143,4 +158,55 @@ export const newCompanionPermissions = async () => {
         return false;
     }
     return true;
+}
+
+export const addBookmark = async (companionId: string) => {
+    const { userId } = await auth();
+    if (!userId) {
+        throw new Error("User not authenticated.");
+    }
+    const supabase = createSupabaseClient();
+    const { data, error } = await supabase.from('bookmarks')
+        .insert({
+            companion_id: companionId,
+            user_id: userId
+        })
+
+    if (error) {
+        throw new Error(error.message);
+    }
+    return data;
+}
+
+export const removeBookmark = async (companionId: string) => {
+    const { userId } = await auth();
+    if (!userId) {
+        throw new Error("User not authenticated.");
+    }
+    const supabase = createSupabaseClient();
+    const { error } = await supabase.from('bookmarks')
+        .delete()
+        .eq('companion_id', companionId)
+        .eq('user_id', userId);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+    return true;
+}
+
+export const getUserBookmarkedCompanions = async (limit = 10) => {
+    const { userId } = await auth();
+    const supabase = createSupabaseClient();
+    const { data, error } = await supabase
+        .from('bookmarks')
+        .select(`companions:companion_id (*)`)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limit)
+
+    if (error) {
+        throw new Error(error.message);
+    }
+    return data.map(({ companions }) => companions)
 }
