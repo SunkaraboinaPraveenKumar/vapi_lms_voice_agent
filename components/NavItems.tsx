@@ -12,9 +12,9 @@ const navItems=[
 const NavItems = () => {
     const pathname = usePathname();
   return (
-    <nav className='flex items-center gap-4'>
+    <nav className='flex flex-col lg:flex-row items-center gap-4'>
         {navItems.map(({label,href})=>(
-            <Link href={href} key={label} className={cn(pathname===href && 'text-primary font-semibold')}>
+            <Link href={href} key={label} className={cn(pathname===href && 'text-primary font-semibold','hover:bg-gray-100 p-1 rounded-lg')}>
                 {label}
             </Link>
         ))}
