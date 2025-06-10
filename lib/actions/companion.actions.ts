@@ -101,3 +101,17 @@ export const getUserSessions = async (limit = 10) => {
     }
     return data.map(({ companions }) => companions)
 }
+
+export const getUserCompanions = async (userId: string) => {
+    const supabase = createSupabaseClient();
+    const { data, error } = await supabase
+        .from('companions')
+        .select()
+        .eq('author', userId)
+        .order('created_at', { ascending: false })
+
+    if (error) {
+        throw new Error(error.message);
+    }
+    return data;
+}
