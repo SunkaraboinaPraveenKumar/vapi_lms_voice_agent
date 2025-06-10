@@ -7,7 +7,7 @@ import { SignedIn, SignedOut } from '@clerk/nextjs'
 
 const NavBar = () => {
   return (
-    <nav className='navbar shadow-md'>
+    <nav className='navbar'>
       <Link href={"/"}>
         <div className='flex items-center gap-2.5 cursor-pointer'>
           <Image

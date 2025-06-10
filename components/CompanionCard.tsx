@@ -23,7 +23,7 @@ const CompanionCard = ({ id, name, topic, subject, duration, color }:CompanionCa
       </div>
 
       <h2 className='text-2xl font-bold'>{name}</h2>
-      <p className='text-sm'>{topic}</p>
+      <p className='text-sm line-clamp-1'>{topic}</p>
       <div className='flex items-center gap-2'>
         <Image src={"/icons/clock.svg"} alt='duration' width={13.5} height={13.5}/>
         <p className='text-sm'>{duration} minutes</p>

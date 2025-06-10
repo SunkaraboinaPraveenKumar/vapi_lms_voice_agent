@@ -19,6 +19,8 @@ import { subjects, voices } from "@/constants"
 import { createCompanion } from "@/lib/actions/companion.actions"
 import { redirect } from "next/navigation"
 import { toast } from "sonner"
+import { useState } from "react"
+import { Loader } from "lucide-react"
 
 const formSchema = z.object({
     name: z.string().min(1, { message: 'Companion name is required' }),
@@ -30,6 +32,7 @@ const formSchema = z.object({
 })
 
 const CompanionForm = () => {
+    const [loading, setLoading] = useState(false);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -43,12 +46,14 @@ const CompanionForm = () => {
     })
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        setLoading(true);
         const companion = await createCompanion(values);
-        if(companion){
+        if (companion) {
             toast.success("Compannion Created Successfully.")
             redirect(`/companions/${companion.id}`);
         }
-        else{
+        else {
+            setLoading(false);
             toast.error('Failed to create a companion')
             console.log('Failed to create a companion');
             redirect("/");
@@ -177,7 +182,13 @@ const CompanionForm = () => {
                         </FormItem>
                     )}
                 />
-                <Button type="submit" className="mb-5 w-full cursor-pointer">Build Your Companion</Button>
+                <Button disabled={loading} type="submit" className="mb-5 w-full cursor-pointer">
+                    {loading ?
+                        <Loader className="animate-spin" />
+                        :
+                        'Build Your Companion'
+                    }
+                </Button>
             </form>
         </Form>
     )
